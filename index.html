@@ -1,5 +1,6 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
   <meta charset="UTF-8">
   <meta http-equiv="X-UA-Compatible" content="IE=edge">
@@ -25,6 +26,7 @@
     }
   </style>
 </head>
+
 <body>
   <fieldset>
     <legend>Error Calculator</legend>
@@ -35,7 +37,7 @@
       <option>*</option>
       <option>/</option>
     </select>
-    <input type="number" name="second-num" id="second-num" />
+    <input type="number" name="second-num" id="second-num" />`
     <button id="calculate">Calculate</button>
     <br />
     <output></output>
@@ -55,18 +57,112 @@
     <button>Trigger a Global Error</button>
   </section>
 
+  <script src="https://cdn.trackjs.com/agent/v3/latest/t.js"></script>
   <script>
+    window.TrackJS && TrackJS.install({ 
+      token: "757b96ca34ee4dd5b05785c814f25adb"
+      // for more configuration options, see https://docs.trackjs.com
+    });
+  </script>
+                
+
+  <script>
+    "use strict";
+
+    class TestError extends Error {
+      constructor(message) {
+        super (`Test Error: ${message}`);
+        this.name = "TestError";
+      }     
+    }
+
     let calculateBtn = document.querySelector('#calculate');
     calculateBtn.addEventListener('click', () => {
       let output = document.querySelector('output');
       let firstNum = document.querySelector('#first-num').value;
       let secondNum = document.querySelector('#second-num').value;
       let operator = document.querySelector('#operator').value;
-      output.innerHTML = eval(`${firstNum} ${operator} ${secondNum}`);
+      try {
+        output.innerHTML = eval(`${firstNum} ${operator} ${secondNum}`);
+      } catch (e) {
+        console.error("Caught an error in try/catch");
+
+
+
+        throw new TestError(e.message);
+      }
     });
 
     let errorBtns = Array.from(document.querySelectorAll('#error-btns > button'));
-    // TODO - Make buttons functional
+    errorBtns[0].addEventListener("click", consoleLogDemo);
+    errorBtns[1].addEventListener("click", consoleErrorDemo);
+    errorBtns[2].addEventListener("click", consoleDirDemo);
+    errorBtns[3].addEventListener("click", consoleDirxmlDemo);
+    errorBtns[4].addEventListener("click", e => console.group("Test group"));
+    errorBtns[5].addEventListener("click", console.groupEnd);
+    errorBtns[6].addEventListener("click", consoleTableDemo);
+    errorBtns[7].addEventListener("click", e => console.time("Test timer"));
+    errorBtns[8].addEventListener("click", e => console.timeEnd("Test timer"));
+    errorBtns[9].addEventListener("click", consoleTraceDemo);
+    errorBtns[10].addEventListener("click", globalErrorDemo);
+
+    function consoleLogDemo() {
+      console.log("Console Log Demo");
+    }
+
+    function consoleErrorDemo() {
+      console.error({ msg: "Console Error Demo" });
+    }
+
+    function consoleDirDemo() {
+      console.dir(errorBtns[2]);
+    }
+
+    function consoleDirxmlDemo() {
+      console.dirxml(errorBtns[3]);
+    }
+
+    function consoleTableDemo() {
+      console.table(["Hello", "World"]);
+
+      class JournalEntry {
+        constructor(day, message) {
+          this.day = day;
+          this.message = message;
+        }
+      }
+
+      let entries = [
+        new JournalEntry("Monday", "worked on color themes for bujo"),
+        new JournalEntry("Tuesday", "finished cse 101 homework early wow that's a first am i right")
+      ];
+
+      console.table(entries);
+    }
+
+    function levelTwo() {
+      console.trace("Test trace");
+    }
+
+    function levelOne() {
+      levelTwo();
+    }
+
+    function consoleTraceDemo() {
+      levelOne();
+    }
+
+    /* onerror callback */
+    window.addEventListener("error", () => {
+      console.error("An error has occurred.");
+      TrackJS.track('testing TrackJS');
+    });
+
+    function globalErrorDemo() {
+      // forgot "let" (happens pretty often because I get javascript confused with python sometimes)
+      journalEntry = document.querySelector("journal-entry");
+    }
   </script>
 </body>
+
 </html>
